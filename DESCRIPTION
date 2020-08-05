@@ -1,0 +1,16 @@
+Package: SIMS4Validation
+Type: Package
+Title: SIMS 4 validation
+Version: 0.1.0
+Authors@R: as.person(c(
+    "Vladimer Shioshvili <vshioshvili@gmail.com> [aut, cre]", 
+    "Hiwot Chichaybelu <hiwot.fisseha@gmail.com> [aut]"
+  ))
+Maintainer: The package maintainer <hiwot.fisseha@gmail.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: sqldf, devtools, stringr, readxl, dplyr (>= 0.8.3)
+Remotes: jason-p-pickering/datim-validation
