@@ -186,8 +186,10 @@ simsValidator <-
     if(any(class(bad_data_values) == "data.frame")){
       if(nrow(bad_data_values) != 0){
         return(bad_data_values)
+      } else{
+        return (NULL)
       }
     } else {
-      return(NULL)
+      return (NULL)
     }
   }
