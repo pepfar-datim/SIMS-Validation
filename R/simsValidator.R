@@ -8,6 +8,7 @@ simsValidator <-
            orgUnitIdScheme,
            isoPeriod,
            fileHasHeader) {
+    
     require(datimvalidation)
 
     dataSets <- c("O392zMXtwar", "rnEToFucnJ9")
@@ -183,7 +184,9 @@ simsValidator <-
 
     # to use in CEE validity check
     if(any(class(bad_data_values) == "data.frame")){
-      if(nrow(bad_data_values) != 0) return(bad_data_values)
+      if(nrow(bad_data_values) != 0){
+        return(bad_data_values)
+      }
     } else {
       return(NULL)
     }
