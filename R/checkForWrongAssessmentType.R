@@ -62,4 +62,6 @@ checkForWrongAssessmentType <- function(folder,fileHasHeader,de_map){
   }
 
   return (d)
+    }
+  }
 }
