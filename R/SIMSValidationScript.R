@@ -30,14 +30,9 @@ if(!is.null(incomplete_CS) && nrow(incomplete_CS) != 0) {
   write.csv(incomplete_CS,file=paste0(out_dir, filename, "_incomplete_CS.csv"))
 }
 
-
 wrongType <- SIMS4Validation::checkForWrongAssessmentType(path,fileHasHeader,de_map)
 if(!is.null(wrongType) && nrow(wrongType) != 0) {
   write.csv(wrongType,file=paste0(out_dir, filename, "_wrongToolType.csv"))
-}
-
-if(remove && file.exists(paste0(path, "_assessmentRemoved.csv"))){
-  path <- paste0(path, "_assessmentRemoved.csv")
 }
 
 inValidCEE <- SIMS4Validation::checkForCEEValidity(path,fileHasHeader,de_map,bad_data_values)
