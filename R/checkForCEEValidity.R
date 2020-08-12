@@ -155,8 +155,7 @@ checkForCEEValidity <- function(folder,fileHasHeader, de_map, bad_data_values){
     }
     }
   }
-  if(remove)
-    write.csv(data_elements, paste0(folder, "_assessmentRemoved.csv"), row.names=FALSE, na="")
+
   return(d)
 
 }
