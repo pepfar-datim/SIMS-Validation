@@ -1,5 +1,5 @@
 
-simsValidator <- function(folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader) {
+simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader) {
     
     require(datimvalidation)
 
@@ -113,13 +113,17 @@ simsValidator <- function(folder,filename,file_type,idScheme,dataElementIdScheme
     d_unique = sqldf::sqldf('select period, storedby from d group by period, storedby')
     d2_unique = sqldf::sqldf('select period, comment from d2 group by period, comment')
     shifts_made = sqldf::sqldf('select comment as assessment, d_unique.period as old_period, d2_unique.period as new_period from d_unique join d2_unique on d_unique.storedby = d2_unique.comment where d_unique.period != d2_unique.period order by old_period')
-    if(nrow(shifts_made) != 0) write.csv(shifts_made,file=paste0(folder, filename, "_shifts_made.csv"))
+    if(nrow(shifts_made) != 0) {
+      write.csv(shifts_made,file=paste0(folder, filename, "_shifts_made.csv"))
+      }
     file_summary["shifted_assessment_count"] = nrow(shifts_made)
 
     # identify any exact duplicates after period shifting
     post_shift_duplicates <- getExactDuplicates(d2)
     post_shift_duplicates_w_code <- sqldf::sqldf('select de_map.code, post_shift_duplicates.* from  post_shift_duplicates left join de_map on de_map.id = post_shift_duplicates.dataElement order by dataElement, period, orgUnit, attributeOptionCombo')
-    if(nrow(post_shift_duplicates_w_code) != 0) write.csv(post_shift_duplicates_w_code,file=paste0(folder, filename, "_post_shift_duplicates.csv"))
+    if(nrow(post_shift_duplicates_w_code) != 0) {
+      write.csv(post_shift_duplicates_w_code,file=paste0(folder, filename, "_post_shift_duplicates.csv"))
+      }
     file_summary["post shift duplicate count"] = length(post_shift_duplicates_w_code$comment)
 
     # 2. verify mechanism validity
@@ -137,7 +141,9 @@ simsValidator <- function(folder,filename,file_type,idScheme,dataElementIdScheme
     # 3. identify invalid data value types
     bad_data_values <- checkValueTypeCompliance2(d2)
     if(any(class(bad_data_values) == "data.frame")){
-      if(nrow(bad_data_values) != 0) write.csv(bad_data_values,file=paste0(folder, filename, "_bad_data_values.csv"))
+      if(nrow(bad_data_values) != 0){ 
+        write.csv(bad_data_values,file=paste0(folder, filename, "_bad_data_values.csv"))
+      }
       file_summary["bad data values"] = length(bad_data_values$dataElement)
     } else {
       file_summary["bad data values"] = 0
@@ -184,4 +190,4 @@ simsValidator <- function(folder,filename,file_type,idScheme,dataElementIdScheme
     } else {
       return (NULL)
     }
-  }
+}
