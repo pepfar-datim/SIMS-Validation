@@ -1,13 +1,5 @@
 
-simsValidator <-
-  function(folder,
-           filename,
-           file_type,
-           idScheme,
-           dataElementIdScheme,
-           orgUnitIdScheme,
-           isoPeriod,
-           fileHasHeader) {
+simsValidator <- function(folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader) {
     
     require(datimvalidation)
 
@@ -185,7 +177,7 @@ simsValidator <-
     # to use in CEE validity check
     if(any(class(bad_data_values) == "data.frame")){
       if(nrow(bad_data_values) != 0){
-        return(bad_data_values)
+        return (bad_data_values)
       } else{
         return (NULL)
       }
