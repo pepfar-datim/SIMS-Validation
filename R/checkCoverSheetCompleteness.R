@@ -4,7 +4,11 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
   r <- httr::GET(url, httr::timeout(60))
   r <- httr::content(r, "text")
   data_dictionary_CS_data_elements <- as.list(jsonlite::fromJSON(r, flatten = TRUE)$dataElements$code)
-
+  optional_CS <- c("SIMS.CS_KP","SIMS.CS_ASSR_TeamLd","SIMS.CS_ASMT_PT_NAME")
+  
+  # remove optional cs from list of cs
+  data_dictionary_CS_data_elements <- data_dictionary_CS_data_elements[!(data_dictionary_CS_data_elements %in% optional_CS)]
+  
   #data elements in file to validate
   #data_elements <- read.csv(folder, header = fileHasHeader)[ ,1:1]
   data_elements <- read.csv(folder, header = fileHasHeader)
