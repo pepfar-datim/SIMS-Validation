@@ -8,7 +8,6 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
   
   # remove optional cs from list of cs
   data_dictionary_CS_data_elements <- data_dictionary_CS_data_elements[!(data_dictionary_CS_data_elements %in% optional_CS)]
-  
   #data elements in file to validate
   #data_elements <- read.csv(folder, header = fileHasHeader)[ ,1:1]
   data_elements <- read.csv(folder, header = fileHasHeader)
@@ -19,19 +18,22 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
 
 
   for(i in 1:length(data_elements_by_assessment)){
-    list_of_CS <- vector("list", length(data_dictionary_CS_data_elements))
+    #list_of_CS <- vector("list", length(data_dictionary_CS_data_elements))
+    list_of_CS <- matrix(,length(data_dictionary_CS_data_elements) , ncol = 2)
     index <- 1
-    for(j in data_elements_by_assessment[[i]][,1]){
+    for(j in 1:length(data_elements_by_assessment[[i]][,1])){
       if(length(de_map) > 0){
-        j <- de_map[[j]]
+        data_elements_by_assessment[[i]][j,1] <- de_map[[data_elements_by_assessment[[i]][j,1]]]
       }
-      if(startsWith( j, 'SIMS.CS')) {
-        list_of_CS[[index]] <- j
+      if(startsWith(data_elements_by_assessment[[i]][j,1], 'SIMS.CS') && data_elements_by_assessment[[i]][j,1] %in% data_dictionary_CS_data_elements) {
+        list_of_CS[index,1] <- data_elements_by_assessment[[i]][j,1]
+        list_of_CS[index,2] <- data_elements_by_assessment[[i]][j,6]
         index <- index + 1
       }
     }
+    list_of_CS <- list_of_CS[rowSums(is.na(list_of_CS)) == 0,]
     #	If assessment type is missing, cover sheet is incomplete
-    if(!('SIMS.CS_ASMT_TYPE' %in% list_of_CS)){
+    if(!('SIMS.CS_ASMT_TYPE' %in% list_of_CS[,1])){
       d = rbind(d, data.frame('Missing CS Data Elements'='SIMS.CS_ASMT_TYPE', Assessment=names(data_elements_by_assessment)[i], '#', '#'))
     }
     else{
@@ -58,7 +60,7 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
             ###
             for(k in data_dictionary_CS_data_elements){
               if(!startsWith(k, 'SIMS.CS_ASMT_REASON')){
-                if(!(k %in% list_of_CS)){
+                if(!(k %in% list_of_CS[,1])){
                   d = rbind(d, data.frame('Missing CS Data Elements'=k, Assessment=names(data_elements_by_assessment)[i], ou, 'Type'='Comprehensive'))
                 }
               }
@@ -68,7 +70,7 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
             #if(!(list_of_CS %like% 'SIMS.CS_ASMT_REASON%')){
             # d = rbind(d, data.frame('Missing CS Data Elements'=k, Assessment=names(data_elements_by_assessment)[i]))
             # }
-            sub_list <- grep("REASON", list_of_CS)
+            sub_list <- grep("REASON", list_of_CS[,1])
             if(length(sub_list) < 1){
               d = rbind(d, data.frame('Missing CS Data Elements'='SIMS.CS_ASMT_REASON*', Assessment=names(data_elements_by_assessment)[i], ou, 'Type'='Comprehensive'))
             }
@@ -88,16 +90,20 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
           ###
           for(k in data_dictionary_CS_data_elements){
             if(!startsWith(k, 'SIMS.CS_ASMT_REASON')){
-              if(!(k %in% list_of_CS)){
+              if(!(k %in% list_of_CS[,1])){
                 d = rbind(d, data.frame('Missing CS Data Elements'=k, Assessment=names(data_elements_by_assessment)[i], ou, 'Type'='Follow-up'))
               }
             }
           }
 
           #if list has at least one reason
-          sub_list <- grep("REASON", list_of_CS)
+          sub_list <- grep("REASON", list_of_CS[,1])
           if(length(sub_list) > 0){
-            d = rbind(d, data.frame('Missing CS Data Elements'='SIMS.CS_ASMT_REASON*', Assessment=names(data_elements_by_assessment)[i], ou, 'Type'='Follow-up'))
+            for(l in 1:length(list_of_CS[,1])){
+              if(grepl("REASON", list_of_CS[l,1], fixed = TRUE) && list_of_CS[l,2] %in% c(TRUE)){
+                d = rbind(d, data.frame('Missing CS Data Elements'=list_of_CS[l,1], Assessment=names(data_elements_by_assessment)[i], ou, 'Type'='Follow-up'))
+              }
+            }
           }
          }
         }
