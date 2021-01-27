@@ -1,8 +1,8 @@
 checkValueTypeCompliance2 <- function (d){
   library(dplyr)
-  url <- URLencode(paste0(getOption("baseurl"), "api/", api_version(),
+  url <- URLencode(paste0(d2_default_session$base_url, "api/", api_version(),
                           "/system/info"))
-  r <- httr::GET(url, httr::timeout(300))
+  r <- httr::GET(url, httr::timeout(300), handle = d2_default_session$handle)
   r <- httr::content(r, "text")
   sysInfo <- jsonlite::fromJSON(r, flatten = TRUE)
   version <- as.numeric(strsplit(sysInfo$version, "\\.")[[1]][2])

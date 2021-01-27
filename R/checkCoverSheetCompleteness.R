@@ -1,7 +1,7 @@
-checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
+checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map,d2_default_session){
   #get coversheet data elements
-  url <- paste0(getOption("baseurl"), "api/dataElements.json?fields=code&filter=code:ilike:SIMS.CS&filter=dataSetElements.dataSet.code:like:SIMS4_1&paging=false")
-  r <- httr::GET(url, httr::timeout(60))
+  url <- paste0(d2_default_session$base_url, "api/dataElements.json?fields=code&filter=code:ilike:SIMS.CS&filter=dataSetElements.dataSet.code:like:SIMS4_1&paging=false")
+  r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
   r <- httr::content(r, "text")
   data_dictionary_CS_data_elements <- as.list(jsonlite::fromJSON(r, flatten = TRUE)$dataElements$code)
   optional_CS <- c("SIMS.CS_KP","SIMS.CS_ASSR_TeamLd","SIMS.CS_ASMT_PT_NAME")
@@ -49,9 +49,9 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
           #Comprehensive assessment
           if(data_elements_by_assessment[[i]][j,6] %in% c('1')){
             ###
-            url <- paste0(getOption("baseurl"), "api/", api_version(),
+            url <- paste0(d2_default_session$base_url, "api/", api_version(),
                           "/organisationUnits/",'orgunit'=data_elements_by_assessment[[i]][j,3],".json?fields=ancestors[name],name")
-            r <- httr::GET(url, httr::timeout(60))
+            r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
             r <- httr::content(r, "text")
             ou <- jsonlite::fromJSON(r, flatten = TRUE)$ancestors$name[3]
             if(is.null(ou) || is.na(ou)){
@@ -79,9 +79,9 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map){
         #Followup assessment
         else if(data_elements_by_assessment[[i]][j,6] %in% c('2')){
           ###
-          url <- paste0(getOption("baseurl"), "api/", api_version(),
+          url <- paste0(d2_default_session$base_url, "api/", api_version(),
                         "/organisationUnits/",'orgunit'=data_elements_by_assessment[[i]][j,3],".json?fields=ancestors[name],name")
-          r <- httr::GET(url, httr::timeout(60))
+          r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
           r <- httr::content(r, "text")
           ou <- jsonlite::fromJSON(r, flatten = TRUE)$ancestors$name[3]
           if(is.na(ou)){

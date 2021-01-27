@@ -1,16 +1,15 @@
 
-simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader) {
-    
-    require(datimvalidation)
+simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,d2_default_session,dataSets) {
+    #require(datimvalidation)
 
-    dataSets <- c("O392zMXtwar", "rnEToFucnJ9")
     path <- paste0(folder, filename)
 
     file_summary <- c()
     file_summary["file"] <- filename
 
+    options("organisationUnit"="ybg3MO3hcf4")
     # parse using regular parser, used to identify period shifts and overlapping assessments
-    d <- datimvalidation::d2Parser(file = path, type = file_type, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE)
+    d <- datimvalidation::d2Parser(file = path, type = file_type, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
 
     if(any(class(d) == "data.frame")){
       # no issues
@@ -49,9 +48,9 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     file_summary["assessment count per operating unit"] = "------"
     ou_map = vector(mode = "list")
     for(col in 1:length(assmt_per_ou$orgUnit)) {
-      url <- paste0(getOption("baseurl"), "api/", api_version(),
+      url <- paste0(d2_default_session$base_url, "api/", api_version(),
                     "/organisationUnits/",assmt_per_ou[col,1],".json?fields=ancestors[name],name")
-      r <- httr::GET(url, httr::timeout(60))
+      r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
       r <- httr::content(r, "text")
       ou <- jsonlite::fromJSON(r, flatten = TRUE)$ancestors$name[3]
       if(is.na(ou)){
@@ -86,7 +85,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
 
 
     #Count of unique assessment id coversheet data element values;
-    de_map <- getDataElementMap() # used to produce post-shift duplicates with codes
+    de_map <- datimvalidation::getDataElementMap(d2session=d2_default_session) # used to produce post-shift duplicates with codes
     assmt_per_unique_cs_de = sqldf::sqldf("select de_map.code as dataElement, count(distinct(d2.value)) from d2 join de_map on de_map.id = d2.dataElement where de_map.code = 'SIMS.CS_ASMT_ID' group by d2.dataElement")
     file_summary["assessment count per unique cs data elements"] = "------"
     for(col in 1:length(assmt_per_unique_cs_de$dataElement)) {
@@ -150,7 +149,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # 4. identify invalid orgunits
-    invalid_orgunits <- checkDataElementOrgunitValidity(data=d2, datasets=dataSets)
+    invalid_orgunits <- checkDataElementOrgunitValidity(data=d2, datasets=dataSets, d2session = d2_default_session)
     if(any(class(invalid_orgunits) == "data.frame")){
       if(nrow(invalid_orgunits) > 0){
         #      print("Invalid data element/org unit pairs encountered. Printing out summaries.")

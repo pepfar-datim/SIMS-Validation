@@ -2,13 +2,13 @@ require(devtools)
 install_github("pepfar-datim/SIMS-Validation", force=TRUE)
 require(SIMS4Validation)
 
-secrets <- "~/secret.json"
+secrets <- "/directory/secret.json"
 
 # folder where file xzx is located, and where output files will be written to
-out_dir <- "~/USAID"
+out_dir <- "/directory/"
 
 # name of the file to validate
-filename <- "USAIS.csv"
+filename <- "file.csv"
 
 # type of the file (json, xml, or csv)
 file_type <- "csv"
@@ -22,10 +22,11 @@ dataElementIdScheme <- "name"
 orgUnitIdScheme <-"id"
 
 # calendar period (quarter) covered by the input file in YYYYQN format, e.g. 2019Q3 for July-September 2019
-isoPeriod <- "2020Q2"
+isoPeriod <- "2020Q4"
 
 # whether the input file has the header as the first line
 fileHasHeader <- TRUE
 
+dataSets <- c("VP0uG6tzB5l", "lvfFcexh1nB")
 
-SIMS4Validation::SIMSValidationScript(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets)
+SIMS4Validation::SIMSValidationScript(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets,dataSets)
