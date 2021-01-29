@@ -1,6 +1,6 @@
 checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map,d2_default_session){
   #get coversheet data elements
-  url <- paste0(d2_default_session$base_url, "api/dataElements.json?fields=code&filter=code:ilike:SIMS.CS&filter=dataSetElements.dataSet.code:like:SIMS4_1&paging=false")
+  url <- paste0(d2_default_session$base_url, "api/dataElements.json?fields=code&filter=code:ilike:SIMS.CS&filter=dataSetElements.dataSet.code:like:SIMS4_&paging=false")
   r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
   r <- httr::content(r, "text")
   data_dictionary_CS_data_elements <- as.list(jsonlite::fromJSON(r, flatten = TRUE)$dataElements$code)
