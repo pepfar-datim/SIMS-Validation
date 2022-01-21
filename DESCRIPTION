@@ -13,4 +13,4 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports: sqldf, devtools, stringr, readxl, dplyr (>= 0.8.3)
-Remotes: jason-p-pickering/datim-validation
+Remotes: pepfar-datim/datim-validation
