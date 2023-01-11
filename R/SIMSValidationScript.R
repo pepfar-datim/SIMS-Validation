@@ -1,8 +1,15 @@
-SIMSValidationScript <- function(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets,dataSets){
+SIMSValidationScript <- function(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets, dataSets=NA){
 require(datimvalidation)
 d2s <- datimutils::loginToDATIM(config_path = secrets)
 assign("d2_default_session", d2s, parent.frame())
-  
+ 
+print(dataSets)
+
+if ( length(dataSets) == 0 | any(is.na(dataSets)) ) {
+  #dataSets <- c("VP0uG6tzB5l", "lvfFcexh1nB")
+  dataSets <- c("dT9xKGbcXLK")
+}
+
 
 bad_data_values <- SIMS4Validation::simsValidator(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,d2_default_session,dataSets)
 
