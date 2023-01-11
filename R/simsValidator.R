@@ -1,9 +1,9 @@
 
 simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,d2_default_session,dataSets) {
     #require(datimvalidation)
-
-    path <- paste0(folder, filename)
-
+print(dataSets)
+        path <- paste0(folder, filename)
+    
     file_summary <- c()
     file_summary["file"] <- filename
 
