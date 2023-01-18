@@ -3,8 +3,6 @@ require(datimvalidation)
 d2s <- datimutils::loginToDATIM(config_path = secrets)
 assign("d2_default_session", d2s, parent.frame())
  
-print(dataSets)
-
 if ( length(dataSets) == 0 | any(is.na(dataSets)) ) {
   #dataSets <- c("VP0uG6tzB5l", "lvfFcexh1nB")
   dataSets <- c("dT9xKGbcXLK")

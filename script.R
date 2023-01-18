@@ -22,11 +22,9 @@ dataElementIdScheme <- "name"
 orgUnitIdScheme <-"id"
 
 # calendar period (quarter) covered by the input file in YYYYQN format, e.g. 2019Q3 for July-September 2019
-isoPeriod <- "2020Q4"
+isoPeriod <- "2023Q1"
 
 # whether the input file has the header as the first line
 fileHasHeader <- TRUE
 
-dataSets <- c("VP0uG6tzB5l", "lvfFcexh1nB")
-
-SIMS4Validation::SIMSValidationScript(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets,dataSets)
+SIMS4Validation::SIMSValidationScript(out_dir,filename,file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets)
