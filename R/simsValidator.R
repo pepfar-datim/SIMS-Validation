@@ -8,14 +8,17 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
 
     options("organisationUnit"="ybg3MO3hcf4")
     # parse using regular parser, used to identify period shifts and overlapping assessments
-    d <- datimvalidation::d2Parser(file = path, type = file_type, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
+    dx <- datimvalidation::d2Parser(filename = path, type = file_type, datastream = 'SIMS', hasHeader = fileHasHeader, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
+    d <- dx$data$parsed
+    # if(any(class(d) == "data.frame")){
+    #   # no issues
+    # } else {
+    #   print(d)
+    # }
 
-    if(any(class(d) == "data.frame")){
-      # no issues
-    } else {
-      print(d)
+    if(dx$has_error){
+      print(dx$messages)
     }
-
     #
     # VALIDATION
     #
@@ -34,8 +37,8 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     # 1. parse input file
 
     # parse using SIMS parser - this parser does period shifting of overlapping SIMS assessments
-    d2 <- datimvalidation::sims2Parser(file=path, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData=TRUE, hasHeader=fileHasHeader, isoPeriod=isoPeriod)
-
+    #d2 <- datimvalidation::sims2Parser(file=path, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData=TRUE, hasHeader=fileHasHeader, isoPeriod=isoPeriod)
+    d2 <- dx$data$import
     file_summary["record count"] = length(d2$comment)
     file_summary["assessment count"] = length(unique(d2$comment))
 
