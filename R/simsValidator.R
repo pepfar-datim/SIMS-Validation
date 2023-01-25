@@ -8,7 +8,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
 
     options("organisationUnit"="ybg3MO3hcf4")
     # parse using regular parser, used to identify period shifts and overlapping assessments
-    dx <- datimvalidation::d2Parser(filename = path, type = file_type, datastream = 'SIMS', isoPeriod = isoPeriod, hasHeader = fileHasHeader, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
+    dx <- d2Parser(filename = path, type = file_type, datastream = 'SIMS', isoPeriod = isoPeriod, hasHeader = fileHasHeader, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
     d <- dx$data$parsed
 
     if(!is.null(dx$has_error)){
