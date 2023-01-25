@@ -8,38 +8,15 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
 
     options("organisationUnit"="ybg3MO3hcf4")
     # parse using regular parser, used to identify period shifts and overlapping assessments
-    dx <- datimvalidation::d2Parser(filename = path, type = file_type, datastream = 'SIMS', isoPeriod = isoPeriod, datasets = dataSets, hasHeader = fileHasHeader, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
-    print(dx)
+    dx <- d2Parser(filename = path, type = file_type, datastream = 'SIMS', isoPeriod = isoPeriod, hasHeader = fileHasHeader, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData = TRUE, d2session=d2_default_session)
     d <- dx$data$parsed
-    # if(any(class(d) == "data.frame")){
-    #   # no issues
-    # } else {
-    #   print(d)
-    # }
 
-    if(dx$has_error){
+    if(!is.null(dx$has_error)){
       print(dx$messages)
     }
-    #
-    # VALIDATION
-    #
-
-    #data <- sims2Parser(
-    #  filename = "/Users/hchichaybelu/Documents/SIMS4/DoD/2/S_TANZANIA_2019_Q1_20191121.csv",
-    #  dataElementIdScheme = "code",
-    #  orgUnitIdScheme = "id",
-    #  idScheme = "code",
-    #  invalidData = TRUE,
-    #  hasHeader = TRUE, # The file has header
-    #  isoPeriod = "2020Q1" # Period to validate
-    #)
-
-
-    # 1. parse input file
-
     # parse using SIMS parser - this parser does period shifting of overlapping SIMS assessments
-    #d2 <- datimvalidation::sims2Parser(file=path, dataElementIdScheme = dataElementIdScheme, orgUnitIdScheme = orgUnitIdScheme, idScheme = idScheme, invalidData=TRUE, hasHeader=fileHasHeader, isoPeriod=isoPeriod)
     d2 <- dx$data$import
+    
     file_summary["record count"] = length(d2$comment)
     file_summary["assessment count"] = length(unique(d2$comment))
 
@@ -86,7 +63,6 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
       file_summary[assmt_per_aoc[col,1]] = assmt_per_aoc[col,2]
     }
 
-
     #Count of unique assessment id coversheet data element values;
     de_map <- datimvalidation::getDataElementMap(d2session=d2_default_session) # used to produce post-shift duplicates with codes
     assmt_per_unique_cs_de = sqldf::sqldf("select de_map.code as dataElement, count(distinct(d2.value)) from d2 join de_map on de_map.id = d2.dataElement where de_map.code = 'SIMS.CS_ASMT_ID' group by d2.dataElement")
@@ -103,33 +79,40 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # identify overlapping assessments, and if any write out details
-    overlapping_assessment <- sqldf::sqldf('select period, orgUnit, attributeOptionCombo, count(distinct(storedby)) as assessment_count from d group by period, orgUnit, attributeOptionCombo having count(distinct(storedby)) > 1')
+    overlapping_assessment <- sqldf::sqldf('select period, orgUnit, attributeOptionCombo, count(distinct(assessmentid)) as assessment_count from d group by period, orgUnit, attributeOptionCombo having count(distinct(assessmentid)) > 1')
     if(nrow(overlapping_assessment) != 0) {
       write.csv(overlapping_assessment,file=paste0(folder, filename, "_overlapping_assessment.csv"))
-      overlapping_assessment_list <- sqldf::sqldf('select distinct d.period, d.orgUnit, d.attributeOptionCombo, d.storedby from d join overlapping_assessment o on d.period=o.period and d.orgUnit=o.orgUnit and d.attributeOptionCombo = o.attributeOptionCombo')
+      overlapping_assessment_list <- sqldf::sqldf('select distinct d.period, d.orgUnit, d.attributeOptionCombo, d.assessmentid from d join overlapping_assessment o on d.period=o.period and d.orgUnit=o.orgUnit and d.attributeOptionCombo = o.attributeOptionCombo')
       write.csv(overlapping_assessment_list,file=paste0(folder, filename, "_overlapping_assessment_list.csv"))
     }
     file_summary["overlapping PE/OU/IM count"] = length(overlapping_assessment$period)
 
     # identify period shifts resulting from shifting assessments
-    d_unique = sqldf::sqldf('select period, storedby from d group by period, storedby')
+    d_unique = sqldf::sqldf('select period, assessmentid from d group by period, assessmentid')
     d2_unique = sqldf::sqldf('select period, comment from d2 group by period, comment')
-    shifts_made = sqldf::sqldf('select comment as assessment, d_unique.period as old_period, d2_unique.period as new_period from d_unique join d2_unique on d_unique.storedby = d2_unique.comment where d_unique.period != d2_unique.period order by old_period')
+    shifts_made = sqldf::sqldf('select comment as assessment, d_unique.period as old_period, d2_unique.period as new_period from d_unique join d2_unique on d_unique.assessmentid = d2_unique.comment where d_unique.period != d2_unique.period order by old_period')
     if(nrow(shifts_made) != 0) {
       write.csv(shifts_made,file=paste0(folder, filename, "_shifts_made.csv"))
-      }
+    }
     file_summary["shifted_assessment_count"] = nrow(shifts_made)
 
     # identify any exact duplicates after period shifting
-    post_shift_duplicates <- getExactDuplicates(d2)
-    post_shift_duplicates_w_code <- sqldf::sqldf('select de_map.code, post_shift_duplicates.* from  post_shift_duplicates left join de_map on de_map.id = post_shift_duplicates.dataElement order by dataElement, period, orgUnit, attributeOptionCombo')
-    if(nrow(post_shift_duplicates_w_code) != 0) {
-      write.csv(post_shift_duplicates_w_code,file=paste0(folder, filename, "_post_shift_duplicates.csv"))
+    library(magrittr)
+    ed <- getExactDuplicates(dx)
+    post_shift_duplicates <- ed$tests$exact_duplicates
+    if(!is.null(post_shift_duplicates)){
+      post_shift_duplicates_w_code <- sqldf::sqldf('select de_map.code, post_shift_duplicates.* from  post_shift_duplicates left join de_map on de_map.id = post_shift_duplicates.dataElement order by dataElement, period, orgUnit, attributeOptionCombo')
+      if(nrow(post_shift_duplicates_w_code) != 0) {
+        write.csv(post_shift_duplicates_w_code,file=paste0(folder, filename, "_post_shift_duplicates.csv"))
       }
-    file_summary["post shift duplicate count"] = length(post_shift_duplicates_w_code$comment)
+      file_summary["post shift duplicate count"] = length(post_shift_duplicates_w_code$dataElement)
+    }else{
+      file_summary["post shift duplicate count"] = 0
+      
+    }
 
     # 2. verify mechanism validity
-    mechs <- checkMechanismValidity(d2)
+    mechs <- checkMechanismValidity(dx)
     if(any(class(mechs) == "data.frame")){
       if(nrow(mechs) != 0){
         mech2 <- sqldf::sqldf("select mechs.*, m2.comment as assessment_id from mechs join (select distinct period, attributeOptionCombo, comment from d2) m2 on mechs.period = m2.period and mechs.attributeOptionCombo = m2.attributeOptionCombo")
@@ -141,7 +124,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # 3. identify invalid data value types
-    bad_data_values <- checkValueTypeCompliance2(d2)
+    bad_data_values <- checkValueTypeCompliance2(dx)
     if(any(class(bad_data_values) == "data.frame")){
       if(nrow(bad_data_values) != 0){ 
         write.csv(bad_data_values,file=paste0(folder, filename, "_bad_data_values.csv"))
@@ -152,7 +135,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # 4. identify invalid orgunits
-    invalid_orgunits <- checkDataElementOrgunitValidity(data=d2, datasets=dataSets, d2session = d2_default_session)
+    invalid_orgunits <- checkDataElementOrgunitValidity(dx, datasets="dT9xKGbcXLK", d2session = d2_default_session)
     if(any(class(invalid_orgunits) == "data.frame")){
       if(nrow(invalid_orgunits) > 0){
         #      print("Invalid data element/org unit pairs encountered. Printing out summaries.")
