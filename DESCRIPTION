@@ -12,5 +12,5 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-Imports: sqldf, devtools, stringr, readxl, dplyr (>= 0.8.3)
-Remotes: github::pepfar-datim/datim-validation
+Imports: sqldf, devtools, stringr, readxl, dplyr (>= 0.8.3), datimvalidation
+Remotes: pepfar-datim/datim-validation
