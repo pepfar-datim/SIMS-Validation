@@ -21,8 +21,8 @@ checkValueTypeCompliance2 <- function (d, d2session = d2_default_session){
   names(patterns) <- c("regex", "valueType")
   des <- datimvalidation::getDataElementMap(d2session = d2session)
   des <- merge(des, patterns, by = "valueType", all.x = T)
-  d <- merge(d, des, by.x = "dataElement", by.y = "id")
-  d_regex_validation <- d[!is.na(d$regex), ]
+  dnew <- merge(d$data$import, des, by.x = "dataElement", by.y = "id")
+  d_regex_validation <- dnew[!is.na(dnew$regex), ]
   if (NROW(d_regex_validation) > 0) {
     d_regex_validation$is_valid_pattern <- mapply(grepl,
                                                   d_regex_validation$regex, as.character(d_regex_validation$value))
@@ -41,11 +41,17 @@ checkValueTypeCompliance2 <- function (d, d2session = d2_default_session){
                                      is_valid_value = logical(), comment = charachter(), stringsAsFactors = FALSE)
   }
   d_option_sets <- checkOptionSetCompliance(d, d2session = d2session)
-  d <- dplyr::bind_rows(d_regex_validation, d_option_sets)
-  if (NROW(d) > 0) {
-    d
+  if(!is.null(d_option_sets$tests$invalid_option_set_values)){
+    d <- dplyr::bind_rows(d_regex_validation, d_option_sets$tests$invalid_option_set_values)
+    if (NROW(d) > 0) {
+      d
+    }
+    else {
+      TRUE
+    }
   }
-  else {
+  else{
     TRUE
   }
+  
 }
