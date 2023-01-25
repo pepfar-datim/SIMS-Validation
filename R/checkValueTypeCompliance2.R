@@ -40,7 +40,7 @@ checkValueTypeCompliance2 <- function (d, d2session = d2_default_session){
                                      attributeOptionCombo = character(), value = character(),
                                      is_valid_value = logical(), comment = charachter(), stringsAsFactors = FALSE)
   }
-  d_option_sets <- checkOptionSetCompliance(d, d2session = d2session)
+  d_option_sets <- datimvalidation::checkOptionSetCompliance(d, d2session = d2session)
   if(!is.null(d_option_sets$tests$invalid_option_set_values)){
     d <- dplyr::bind_rows(d_regex_validation, d_option_sets$tests$invalid_option_set_values)
     if (NROW(d) > 0) {
