@@ -1,6 +1,6 @@
 checkValueTypeCompliance2 <- function (d, d2session = d2_default_session){
   library(dplyr)
-  url <- URLencode(paste0(d2session$base_url, "api/", api_version(),
+  url <- URLencode(paste0(d2session$base_url, "api/", datimvalidation::api_version(),
                           "/system/info"))
   r <- httr::GET(url, httr::timeout(300), handle = d2session$handle)
   r <- httr::content(r, "text")

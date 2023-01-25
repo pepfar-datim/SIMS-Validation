@@ -49,7 +49,7 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map,d2_default_s
           #Comprehensive assessment
           if(data_elements_by_assessment[[i]][j,6] %in% c('1')){
             ###
-            url <- paste0(d2_default_session$base_url, "api/", api_version(),
+            url <- paste0(d2_default_session$base_url, "api/", datimvalidation::api_version(),
                           "/organisationUnits/",'orgunit'=data_elements_by_assessment[[i]][j,3],".json?fields=ancestors[name],name")
             r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
             r <- httr::content(r, "text")
