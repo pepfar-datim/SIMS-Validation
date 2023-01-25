@@ -56,7 +56,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     #    aoc <- jsonlite::fromJSON(r, flatten = TRUE)$name
     #  file_summary[aoc] = assmt_per_aoc[col,2]
     #}
-    mech_map <- getMechanismsMap()
+    mech_map <- datimvalidation::getMechanismsMap()
     assmt_per_aoc = sqldf::sqldf('select mech_map.code as attributeOptionCombo, count(distinct(d2.comment)) from d2 join mech_map on mech_map.id = d2.attributeOptionCombo group by d2.attributeOptionCombo')
     file_summary["assessment count per mechanism"] = "------"
     for(col in 1:length(assmt_per_aoc$attributeOptionCombo)) {
@@ -98,7 +98,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
 
     # identify any exact duplicates after period shifting
     library(magrittr)
-    ed <- getExactDuplicates(dx)
+    ed <- datimvalidation::getExactDuplicates(dx)
     post_shift_duplicates <- ed$tests$exact_duplicates
     if(!is.null(post_shift_duplicates)){
       post_shift_duplicates_w_code <- sqldf::sqldf('select de_map.code, post_shift_duplicates.* from  post_shift_duplicates left join de_map on de_map.id = post_shift_duplicates.dataElement order by dataElement, period, orgUnit, attributeOptionCombo')
@@ -112,7 +112,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # 2. verify mechanism validity
-    mechs <- checkMechanismValidity(dx)
+    mechs <- datimvalidation::checkMechanismValidity(dx)
     if(any(class(mechs) == "data.frame")){
       if(nrow(mechs) != 0){
         mech2 <- sqldf::sqldf("select mechs.*, m2.comment as assessment_id from mechs join (select distinct period, attributeOptionCombo, comment from d2) m2 on mechs.period = m2.period and mechs.attributeOptionCombo = m2.attributeOptionCombo")
@@ -135,7 +135,7 @@ simsValidator <- function (folder,filename,file_type,idScheme,dataElementIdSchem
     }
 
     # 4. identify invalid orgunits
-    invalid_orgunits <- checkDataElementOrgunitValidity(dx, datasets="dT9xKGbcXLK", d2session = d2_default_session)
+    invalid_orgunits <- datimvalidation::checkDataElementOrgunitValidity(dx, datasets="dT9xKGbcXLK", d2session = d2_default_session)
     if(any(class(invalid_orgunits) == "data.frame")){
       if(nrow(invalid_orgunits) > 0){
         #      print("Invalid data element/org unit pairs encountered. Printing out summaries.")
