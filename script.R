@@ -22,7 +22,7 @@ dataElementIdScheme <- "name"
 orgUnitIdScheme <-"id"
 
 # calendar period (quarter) covered by the input file in YYYYQN format, e.g. 2019Q3 for July-September 2019
-isoPeriod <- "2023Q1"
+isoPeriod <- "2022Q4"
 
 # whether the input file has the header as the first line
 fileHasHeader <- TRUE
