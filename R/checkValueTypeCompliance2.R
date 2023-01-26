@@ -98,11 +98,11 @@ checkOptionSetCompliance2 <- function(d,
   if (NROW(invalid_option_set_values) > 0) {
     d$tests$invalid_option_set_values <- invalid_option_set_values
     msg <- paste(NROW(invalid_option_set_values), "invalid option set values detected.")
-    d$info$messages <- appendMessage(d$info$messages, msg, "ERROR")
+    d$info$messages <- datimvalidation::appendMessage(d$info$messages, msg, "ERROR")
     
   } else  {
     msg <- "All option set values were valid."
-    d$info$messages <- appendMessage(d$info$messages, msg, "ERROR")
+    d$info$messages <- datimvalidation::appendMessage(d$info$messages, msg, "ERROR")
   }
   d
   
