@@ -4,7 +4,7 @@ checkCoverSheetCompleteness <- function(folder,fileHasHeader,de_map,d2_default_s
   r <- httr::GET(url, httr::timeout(60), handle = d2_default_session$handle)
   r <- httr::content(r, "text")
   data_dictionary_CS_data_elements <- as.list(jsonlite::fromJSON(r, flatten = TRUE)$dataElements$code)
-  optional_CS <- c("SIMS.CS_KP","SIMS.CS_ASSR_TeamLd","SIMS.CS_ASMT_PT_NAME")
+  optional_CS <- c("SIMS.CS_KP","SIMS.CS_ASSR_TeamLd","SIMS.CS_ASMT_PT_NAME","SIMS.CS_ASMT_CNTX")
   
   # remove optional cs from list of cs
   data_dictionary_CS_data_elements <- data_dictionary_CS_data_elements[!(data_dictionary_CS_data_elements %in% optional_CS)]
