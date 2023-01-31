@@ -27,7 +27,6 @@ isoPeriod <- "2022Q4"
 # whether the input file has the header as the first line
 fileHasHeader <- TRUE
 
-dataSets <- c("dT9xKGbcXLK")
 #beginings of all coversheet and IPC data elements
 ipc_all <- c("SIMS.CS","SIMS.S_01_06","SIMS.S_01_07","SIMS.S_01_08","SIMS.S_10_02","SIMS.S_01_27","SIMS.S_01_28","SIMS.S_01_29","SIMS.S_01_30")
 #beginings of all IPC data elements
@@ -93,4 +92,4 @@ if(!is.null(data_elements2) && nrow(data_elements2) != 0) {
   write.csv(data_elements2,file=paste0(out_dir, filename, "_ipc.csv"),row.names=FALSE)
 }
 #validate the new file
-SIMS4Validation::SIMSValidationScript(out_dir,paste0(filename, "_ipc.csv"),file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets, dataSets)
+SIMS4Validation::SIMSValidationScript(out_dir,paste0(filename, "_ipc.csv"),file_type,idScheme,dataElementIdScheme,orgUnitIdScheme,isoPeriod,fileHasHeader,secrets)
