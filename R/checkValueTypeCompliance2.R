@@ -51,7 +51,7 @@ checkValueTypeCompliance2 <- function (d, d2session = d2_default_session){
     }
   }
   else{
-    TRUE
+    d_regex_validation
   }
   
 }
